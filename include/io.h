@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <map>
+#include <unordered_map>
 #include <sstream>
 #include <tuple>
 #include <vector>
@@ -30,6 +32,38 @@ template<typename S, typename T>
 std::ostream & operator<<(std::ostream & os, std::pair<S, T> const & x)
 {
     os << "<" << x.first << ", " << x.second << ">";
+    return os;
+}
+
+
+template<typename K, typename V>
+std::ostream & operator<<(std::ostream & os, std::map<K, V> const & x)
+{
+    os << "{";
+    int n = 0;
+    for (auto const & [k, v] : x) {
+        if (n > 0) {
+            os << ", ";
+        }
+        os << '"' << k << "\": \"" << v << "\"";
+    }
+    os << "}";
+    return os;
+}
+
+
+template<typename K, typename V>
+std::ostream & operator<<(std::ostream & os, std::unordered_map<K, V> const & x)
+{
+    os << "{";
+    int n = 0;
+    for (auto const & [k, v] : x) {
+        if (n > 0) {
+            os << ", ";
+        }
+        os << '"' << k << "\": \"" << v << "\"";
+    }
+    os << "}";
     return os;
 }
 
