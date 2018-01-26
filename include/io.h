@@ -1,0 +1,53 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <tuple>
+#include <vector>
+
+
+
+template<typename T>
+std::ostream & operator<<(std::ostream & os, std::vector<T> const & x)
+{
+    auto it = x.cbegin();
+    if (it != x.cend()) {
+        os << "[" << *it;
+    } else {
+        return os;
+    }
+    it++;
+    while (it != x.cend())
+    {
+        os << ", " << *it;
+        it++;
+    }
+    os << "]";
+    return os;
+}
+
+
+template<typename S, typename T>
+std::ostream & operator<<(std::ostream & os, std::pair<S, T> const & x)
+{
+    os << "<" << x.first << ", " << x.second << ">";
+    return os;
+}
+
+
+std::string read_text_file(std::string const & filename) 
+{
+    std::ifstream f(filename);
+    std::ostringstream ss;
+    ss << f.rdbuf();
+    return ss.str();
+}
+
+
+std::string read_binary_file(std::string const & filename) 
+{
+    auto text = read_text_file(filename);
+    // auto v = std::vector<char>(text.begin(), text.end());
+    // return std::string(v.cbegin(), v.cend());
+    return text;
+}
+
