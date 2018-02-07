@@ -68,7 +68,7 @@ std::ostream & operator<<(std::ostream & os, std::unordered_map<K, V> const & x)
 }
 
 
-std::string read_text_file(std::string const & filename) 
+std::string read_text_file(std::string const & filename)
 {
     std::ifstream f(filename);
     std::ostringstream ss;
