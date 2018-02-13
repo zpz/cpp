@@ -1,3 +1,7 @@
+#ifndef _zpz_avro_h_
+#define _zpz_avro_h_
+
+
 #include "avro/DataFile.hh"
 #include "avro/Generic.hh"
 
@@ -5,6 +9,9 @@
 #include <string>
 #include <vector>
 
+
+namespace zpz
+{
 
 class AvroError: public std::runtime_error
 {
@@ -165,3 +172,7 @@ class AvroReader
         }
 };
 
+
+
+}  // namespace zpz
+#endif  // _zpz_avro_h_

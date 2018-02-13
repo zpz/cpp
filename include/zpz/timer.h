@@ -1,5 +1,12 @@
+#ifndef _zpz_timer_h_
+#define _zpz_timer_h_
+
+
 #include <chrono>
 
+
+namespace zpz
+{
 
 class Timer
 {
@@ -45,3 +52,6 @@ class Timer
         std::chrono::high_resolution_clock::time_point _t_start, _t_stop;
 };
 
+
+}  // namespace zpz
+#endif  // _zpz_timer_h_

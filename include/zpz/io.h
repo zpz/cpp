@@ -1,3 +1,6 @@
+#ifndef _zpz_io_h_
+#define _zpz_io_h_
+
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -7,6 +10,8 @@
 #include <vector>
 
 
+namespace zpz
+{
 
 template<typename T>
 std::ostream & operator<<(std::ostream & os, std::vector<T> const & x)
@@ -85,3 +90,6 @@ std::string read_binary_file(std::string const & filename)
     return text;
 }
 
+
+}  // namespace zpz
+#endif  // _zpz_io_h_

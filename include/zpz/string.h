@@ -1,6 +1,12 @@
+#ifndef _zpz_string_h_
+#define _zpz_string_h_
+
 #include <string>
 #include <random>
 
+
+namespace zpz
+{
 
 std::string random_string(std::size_t length)
 {
@@ -19,3 +25,6 @@ std::string random_string(std::size_t length)
     return s;
 }
 
+
+}  // namespace zpz
+#endif  // _zpz_string_h_

@@ -1,3 +1,6 @@
+#ifndef _zpz_murmurhash_h_
+#define _zpz_murmurhash_h_
+
 //-----------------------------------------------------------------------------
 // MurmurHash3 was written by Austin Appleby, and is placed in the public
 // domain. The author hereby disclaims copyright to this source code.
@@ -10,6 +13,9 @@
 #include <cstdint>  // uint8_t, uint32_t, uint64_t
 #include <tuple>
 
+
+namespace zpz
+{
 
 inline uint32_t rotl32 ( uint32_t x, int8_t r )
 {
@@ -111,3 +117,6 @@ std::pair<int, int> hash(char const * name, int len, int n_out)
     return std::make_pair(idx, 1);
 }
 
+
+}  // namespace zpz
+#endif  // _zpz_murmurhash_h_
