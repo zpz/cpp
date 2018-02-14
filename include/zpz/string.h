@@ -1,5 +1,5 @@
-#ifndef _zpz_string_h_
-#define _zpz_string_h_
+#ifndef _zpz_utilities_string_h_
+#define _zpz_utilities_string_h_
 
 #include <string>
 #include <random>
@@ -27,4 +27,4 @@ std::string random_string(std::size_t length)
 
 
 }  // namespace zpz
-#endif  // _zpz_string_h_
+#endif  // _zpz_utilities_string_h_

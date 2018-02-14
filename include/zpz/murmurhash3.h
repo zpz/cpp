@@ -1,5 +1,5 @@
-#ifndef _zpz_murmurhash_h_
-#define _zpz_murmurhash_h_
+#ifndef _zpz_utilities_murmurhash_h_
+#define _zpz_utilities_murmurhash_h_
 
 //-----------------------------------------------------------------------------
 // MurmurHash3 was written by Austin Appleby, and is placed in the public
@@ -119,4 +119,4 @@ std::pair<int, int> hash(char const * name, int len, int n_out)
 
 
 }  // namespace zpz
-#endif  // _zpz_murmurhash_h_
+#endif  // _zpz_utilities_murmurhash_h_

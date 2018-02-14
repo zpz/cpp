@@ -1,5 +1,5 @@
-#ifndef _zpz_avro_h_
-#define _zpz_avro_h_
+#ifndef _zpz_utilities_avro_h_
+#define _zpz_utilities_avro_h_
 
 
 #include "avro/DataFile.hh"
@@ -175,4 +175,4 @@ class AvroReader
 
 
 }  // namespace zpz
-#endif  // _zpz_avro_h_
+#endif  // _zpz_utilities_avro_h_

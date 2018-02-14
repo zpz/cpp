@@ -1,5 +1,5 @@
-#ifndef _zpz_io_h_
-#define _zpz_io_h_
+#ifndef _zpz_utilities_io_h_
+#define _zpz_utilities_io_h_
 
 #include <iostream>
 #include <fstream>
@@ -92,4 +92,4 @@ std::string read_binary_file(std::string const & filename)
 
 
 }  // namespace zpz
-#endif  // _zpz_io_h_
+#endif  // _zpz_io_utilities_io_h_

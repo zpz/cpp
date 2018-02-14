@@ -1,5 +1,5 @@
-#ifndef _zpz_date_h_
-#define _zpz_date_h_
+#ifndef _zpz_utilities_date_h_
+#define _zpz_utilities_date_h_
 
 /* Zepu Zhang
  *   2006-12-25
@@ -169,4 +169,5 @@ datecpy(struct calendar *dest, const struct calendar *src)
 
 
 }  // namespace zpz
-#endif  // _zpz_date_h_
+#endif  // _zpz_utilities_date_h_
+

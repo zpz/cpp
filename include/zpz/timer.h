@@ -1,5 +1,5 @@
-#ifndef _zpz_timer_h_
-#define _zpz_timer_h_
+#ifndef _zpz_utilities_timer_h_
+#define _zpz_utilities_timer_h_
 
 
 #include <chrono>
@@ -54,4 +54,4 @@ class Timer
 
 
 }  // namespace zpz
-#endif  // _zpz_timer_h_
+#endif  // _zpz_utilities_timer_h_
