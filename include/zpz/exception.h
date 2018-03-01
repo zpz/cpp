@@ -8,11 +8,11 @@ namespace zpz
 {
 
 
-class ZpzError: public std::runtime_error
+class Error: public std::runtime_error
 {
     public:
-        ZpzError(string const & msg): std::runtime_error(msg) {}
-        ZpzError(char const * msg): std::runtime_error(msg) {}
+        Error(string const & msg): std::runtime_error(msg) {}
+        Error(char const * msg): std::runtime_error(msg) {}
 };
 
 
