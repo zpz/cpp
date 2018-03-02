@@ -7,9 +7,7 @@
 
 #include <rapidjson/document.h>
 
-
-namespace zpz
-{
+namespace zpz {
 
 class JsonReader {
     // Design of this class is similar to that of `AvroReader`.
@@ -32,7 +30,7 @@ class JsonReader {
     {
     }
 
-    ~JsonReader() 
+    ~JsonReader()
     {
         _check_cursor();
     }
@@ -55,7 +53,7 @@ class JsonReader {
     }
 
     void restore_cursor()
-    {        
+    {
         if (_cursor_stack.empty()) {
             throw Error("you are trying to restore cursor while no cursor is saved");
         }
@@ -347,7 +345,8 @@ class JsonReader {
         return std::move(values);
     }
 
-    void _check_cursor() const {
+    void _check_cursor() const
+    {
         if (!_cursor_stack.empty()) {
             throw Error("`save_cursor` is not balanced out by `restore_cursor`");
         }
@@ -399,5 +398,5 @@ bool JsonReader::_get_scalar<bool>(Cursor cursor) const
     return cursor->GetBool();
 }
 
-}  // namespace zpz
-#endif  // _zpz_utilities_json_h_
+} // namespace zpz
+#endif // _zpz_utilities_json_h_

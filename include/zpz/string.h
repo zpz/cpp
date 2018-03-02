@@ -1,30 +1,27 @@
 #ifndef _zpz_utilities_string_h_
 #define _zpz_utilities_string_h_
 
-#include <string>
 #include <random>
+#include <string>
 
-
-namespace zpz
-{
+namespace zpz {
 
 std::string random_string(std::size_t length)
 {
     static auto& chrs = "0123456789"
-        "abcdefghijklmnopqrstuvwxyz"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                        "abcdefghijklmnopqrstuvwxyz"
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    thread_local static std::mt19937 rg{std::random_device{}()};
+    thread_local static std::mt19937 rg{ std::random_device{}() };
     thread_local static std::uniform_int_distribution<std::string::size_type> pick(0, sizeof(chrs) - 2);
 
     std::string s;
     s.reserve(length);
-    while(length--)
+    while (length--)
         s += chrs[pick(rg)];
 
     return s;
 }
-
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, vector<T> const& x)
@@ -83,5 +80,5 @@ string make_string(T const& x, Args... xs)
     return make_string(x) + make_string(xs...);
 }
 
-}  // namespace zpz
-#endif  // _zpz_utilities_string_h_
+} // namespace zpz
+#endif // _zpz_utilities_string_h_

@@ -8,33 +8,29 @@
 
 #include <math.h>
 
-namespace zpz
-{
-
+namespace zpz {
 
 struct calendar {
-    int year;   /* Year number */
-    int mon;    /* Month of the year [1, 12] */
-/*  int week; */  /* Week of the year [1, 53] */
-    int mday;   /* Day of the month [1, 31] */
-/*  int yday; */  /* Day of the year [1, 366] */
-/*  int wday; */  /* Day of the week [1, 7] */
-    int hour;   /* Hour of the day [0, 23] */
-    int min;    /* Minute of the hour [0, 59] */
-    int sec;    /* Second of the minute [0, 59] */
+    int year; /* Year number */
+    int mon; /* Month of the year [1, 12] */
+    /*  int week; */ /* Week of the year [1, 53] */
+    int mday; /* Day of the month [1, 31] */
+    /*  int yday; */ /* Day of the year [1, 366] */
+    /*  int wday; */ /* Day of the week [1, 7] */
+    int hour; /* Hour of the day [0, 23] */
+    int min; /* Minute of the hour [0, 59] */
+    int sec; /* Second of the minute [0, 59] */
     long int nsec; /* Nanosecond [0, 10^9 - 1] */
-    double jdate;  /* Julian date */
-    };
-
+    double jdate; /* Julian date */
+};
 
 /* Set date structure given Gregorian calendar items. */
-int dateset_greg(struct calendar *cal, int, int, int, int, int, int, long int);
+int dateset_greg(struct calendar* cal, int, int, int, int, int, int, long int);
 
 /* Set date structure given Julian date value. */
-int dateset_jul(struct calendar *cal, double);
+int dateset_jul(struct calendar* cal, double);
 
-void datecpy(struct calendar *dest, const struct calendar *src);
-
+void datecpy(struct calendar* dest, const struct calendar* src);
 
 /* Given the Julian date number for a date and time,
  * return a structure with Gregorian calendar components.
@@ -42,8 +38,7 @@ void datecpy(struct calendar *dest, const struct calendar *src);
  * Ref:
  *   http://aa.usno.navy.mil/faq/docs/JD_Formula.html
  */
-int
-dateset_jul(struct calendar *cal, double jdate)
+int dateset_jul(struct calendar* cal, double jdate)
 {
 
     double frac, x;
@@ -80,7 +75,6 @@ dateset_jul(struct calendar *cal, double jdate)
 
     return 0;
 }
-
 
 /* Given date and time on the Gregorian caldendar,
  * return its  Julian date number which is the number of days
@@ -127,9 +121,8 @@ dateset_jul(struct calendar *cal, double jdate)
  *   http://ecsinfo.gsfc.nasa.gov/sec2/papers/noerdlinger2.html
  *   http://aa.usno.navy.mil/data/docs/JulianDate.html
  */
-int
-dateset_greg(struct calendar *cal, int year, int month, int day,
-        int hour, int minute, int second, long int nsecond)
+int dateset_greg(struct calendar* cal, int year, int month, int day,
+    int hour, int minute, int second, long int nsecond)
 {
     double x;
 
@@ -154,8 +147,7 @@ dateset_greg(struct calendar *cal, int year, int month, int day,
     return 0;
 }
 
-void
-datecpy(struct calendar *dest, const struct calendar *src)
+void datecpy(struct calendar* dest, const struct calendar* src)
 {
     dest->year = src->year;
     dest->mon = src->mon;
@@ -167,7 +159,5 @@ datecpy(struct calendar *dest, const struct calendar *src)
     dest->jdate = src->jdate;
 }
 
-
-}  // namespace zpz
-#endif  // _zpz_utilities_date_h_
-
+} // namespace zpz
+#endif // _zpz_utilities_date_h_

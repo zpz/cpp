@@ -3,19 +3,20 @@
 
 #include <exception>
 
+namespace zpz {
 
-namespace zpz
-{
-
-
-class Error: public std::runtime_error
-{
-    public:
-        Error(string const & msg): std::runtime_error(msg) {}
-        Error(char const * msg): std::runtime_error(msg) {}
+class Error : public std::runtime_error {
+  public:
+    Error(string const& msg)
+        : std::runtime_error(msg)
+    {
+    }
+    Error(char const* msg)
+        : std::runtime_error(msg)
+    {
+    }
 };
 
+} // namespace zpz
 
-}  // namespace zpz
-
-#endif  // _zpz_utilities_exception_h_
+#endif // _zpz_utilities_exception_h_
