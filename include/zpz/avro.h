@@ -1,7 +1,6 @@
 #ifndef _zpz_utilities_avro_h_
 #define _zpz_utilities_avro_h_
 
-
 #include "avro/DataFile.hh"
 #include "avro/Generic.hh"
 
@@ -12,10 +11,7 @@
 #include <string>
 #include <vector>
 
-
-namespace zpz
-{
-
+namespace zpz {
 
 class AvroReader {
     // Reads data from Avro file that contains a single record at the top level.
@@ -69,7 +65,7 @@ class AvroReader {
         _cursor = &_root;
     }
 
-    ~AvroReader() 
+    ~AvroReader()
     {
         _check_cursor();
     }
@@ -212,6 +208,13 @@ class AvroReader {
         return _get_array_size(_cseek(_cursor, std::forward<Names>(names)...));
     }
 
+    // Number of entries in the record object specified by the name hierarchy.
+    template <typename... Names>
+    size_t get_record_size(Names&&... names) const
+    {
+        return _get_record_size(_cseek(_cursor, std::forward<Names>(names)...));
+    }
+
     // Get the scalar value of the element specified by the name hierarchy.
     // The element must be a scalar that is compatible with type `T`.
     // `T` should be one of `int`, `double`, `std::string`.
@@ -312,6 +315,13 @@ class AvroReader {
         _assert_type(cursor, avro::AVRO_ARRAY);
         auto const& data = cursor->value<avro::GenericArray>().value();
         return data.size();
+    }
+
+    size_t _get_record_size(Datum const* cursor) const
+    {
+        _assert_type(cursor, avro::AVRO_RECORD);
+        auto const& rec = cursor->value<avro::GenericRecord>();
+        return rec.fieldCount();
     }
 
     avro::Type _get_array_elem_type(Datum const* cursor) const
@@ -425,12 +435,13 @@ class AvroReader {
         return std::move(value);
     }
 
-    void _check_cursor() const {
+    void _check_cursor() const
+    {
         if (!_cursor_stack.empty()) {
             throw Error("`save_cursor` is not balanced out by `restore_cursor`");
         }
     }
 };
 
-}  // namespace zpz
-#endif  // _zpz_utilities_avro_h_
+} // namespace zpz
+#endif // _zpz_utilities_avro_h_
