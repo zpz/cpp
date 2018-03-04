@@ -41,12 +41,6 @@ class JsonReader {
         _cursor = _cseek(_cursor, std::forward<Names>(names)...);
     }
 
-    template <typename... Names>
-    void seek_in_array(size_t pos, Names&&... names)
-    {
-        _cursor = _cseek_in_array(_cursor, pos, std::forward<Names>(names)...);
-    }
-
     void save_cursor()
     {
         _cursor_stack.push_back(_cursor);
@@ -170,9 +164,9 @@ class JsonReader {
     }
 
     template <typename... Names>
-    bool has_member(string const& name, Names&&... names) const
+    bool has_member(Names&&... names) const
     {
-        return _has_member(_cursor, name, std::forward<Names>(names)...);
+        return _has_member(_cursor, std::forward<Names>(names)...);
     }
 
     template <typename... Names>
@@ -190,22 +184,9 @@ class JsonReader {
     }
 
     template <typename T, typename... Names>
-    T get_scalar_in_array(size_t pos, Names&&... names) const
-    {
-        return _get_scalar<T>(_cseek_in_array(_cursor, pos, std::forward<Names>(names)...));
-    }
-
-    template <typename T, typename... Names>
     vector<T> get_vector(Names&&... names) const
     {
         auto cursor = _cseek(_cursor, std::forward<Names>(names)...);
-        return _get_vector<T>(cursor);
-    }
-
-    template <typename T, typename... Names>
-    vector<T> get_vector_in_array(size_t pos, Names&&... names)
-    {
-        auto cursor = _cseek_in_array(_cursor, pos, std::forward<Names>(names)...);
         return _get_vector<T>(cursor);
     }
 
@@ -226,18 +207,20 @@ class JsonReader {
             cursor = &_root;
         } else if (name == "") {
             throw Error("can not seek an element with empty name");
-        } else if (cursor->HasMember(name.c_str())) {
-            cursor = &(*cursor)[name.c_str()];
         } else {
-            throw Error(make_string("can not find member named '", name, "'"));
+            _assert_type(cursor, "object");
+            if (cursor->HasMember(name.c_str())) {
+                cursor = &(*cursor)[name.c_str()];
+            } else {
+                throw Error(make_string("can not find member named '", name, "'"));
+            }
         }
         return _cseek(cursor, std::forward<Names>(names)...);
     }
 
     template <typename... Names>
-    Cursor _cseek_in_array(Cursor cursor, size_t pos, Names&&... names) const
+    Cursor _cseek(Cursor cursor, size_t pos, Names&&... names) const
     {
-        cursor = _cseek(cursor, std::forward<Names>(names)...);
         _assert_type(cursor, "array");
         auto n = cursor->Size();
         if (pos >= n) {
@@ -247,7 +230,8 @@ class JsonReader {
                 "> in array because array size is ",
                 n));
         }
-        return &(cursor->GetArray()[pos]);
+        cursor = &(cursor->GetArray()[pos]);
+        return _cseek(cursor, std::forward<Names>(names)...);
     }
 
     string _type_name(Cursor cursor) const
@@ -304,7 +288,7 @@ class JsonReader {
         if (cursor->Size() < 1) {
             throw Error("can not determine element type of an empty array");
         }
-        return (_type_name(_cseek_in_array(cursor, 0)) == type);
+        return (_type_name(_cseek(cursor, 0)) == type);
     }
 
     void _assert_array_elem_type(Cursor cursor, string_view type) const
@@ -312,19 +296,19 @@ class JsonReader {
         if (!_is_typed_array(cursor, type)) {
             throw Error(make_string(
                 "encountered array with elements of type '",
-                _type_name(_cseek_in_array(cursor, 0)),
+                _type_name(_cseek(cursor, 0)),
                 "' while type '", type, "' is expected"));
         }
     }
 
     template <typename... Names>
-    bool _has_member(Cursor cursor, string const& name, Names&&... names) const
+    bool _has_member(Cursor cursor, Names&&... names) const
     {
-        if constexpr (sizeof...(names) == 0) {
-            _assert_type(cursor, "object");
-            return cursor->HasMember(name.c_str());
-        } else {
-            return _has_member(_cseek(cursor, name), std::forward<Names>(names)...);
+        try {
+            auto cursor = _cseek(cursor, std::forward<Names>(names)...);
+            return true;
+        } catch (std::exception& e) {
+            return false;
         }
     }
 
@@ -340,7 +324,7 @@ class JsonReader {
         auto n = cursor->Size();
         auto values = vector<T>(n);
         for (size_t i = 0; i < n; i++) {
-            values[i] = _get_scalar<T>(_cseek_in_array(cursor, i));
+            values[i] = _get_scalar<T>(_cseek(cursor, i));
         }
         return std::move(values);
     }

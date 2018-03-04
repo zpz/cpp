@@ -83,14 +83,6 @@ class AvroReader {
         _cursor = _cseek(_cursor, std::forward<Names>(names)...);
     }
 
-    // Move internal cursor to point to the array element at the specified index in the array
-    // that is specified by the name hierarchy.
-    template <typename... Names>
-    void seek_in_array(size_t pos, Names&&... names)
-    {
-        _cursor = _cseek_in_array(_cursor, pos, std::forward<Names>(names)...);
-    }
-
     // Save current cursor so that the location can be restored later.
     void save_cursor()
     {
@@ -196,23 +188,32 @@ class AvroReader {
 
     // Whether the element specified by the name hierarchy exists.
     template <typename... Names>
-    bool has_member(string const& name, Names&&... names) const
+    bool has_member(Names&&... names) const
     {
-        return _has_member(_cursor, name, std::forward<Names>(names)...);
+        try {
+            auto cursor = _cseek(_cursor, std::forward<Names>(names)...);
+            return true;
+        } catch (std::exception& e) {
+            return false;
+        }
     }
 
     // Size of the array element specified by the name hierarchy.
     template <typename... Names>
-    size_t get_array_size(Names&&... names) const
+    size_t get_size(Names&&... names) const
     {
-        return _get_array_size(_cseek(_cursor, std::forward<Names>(names)...));
-    }
-
-    // Number of entries in the record object specified by the name hierarchy.
-    template <typename... Names>
-    size_t get_record_size(Names&&... names) const
-    {
-        return _get_record_size(_cseek(_cursor, std::forward<Names>(names)...));
+        auto cursor = _cseek(_cursor, std::forward<Names>(names)...);
+        if (cursor->type() == avro::AVRO_ARRAY) {
+            return _get_array_size(cursor);
+        }
+        if (cursor->type() == avro::AVRO_RECORD) {
+            return _get_record_size(cursor);
+        }
+        throw Error(make_string(
+            "can query size for Array or Record only, but ",
+            avro::toString(cursor->type()),
+            " is encountered"
+        ));
     }
 
     // Get the scalar value of the element specified by the name hierarchy.
@@ -222,165 +223,6 @@ class AvroReader {
     const T get_scalar(Names&&... names) const
     {
         auto cursor = _cseek(_cursor, std::forward<Names>(names)...);
-        return _get_scalar<T>(cursor);
-    }
-
-    // Get the scalar value at the specified index in the specified array element.
-    template <typename T, typename... Names>
-    T get_scalar_in_array(size_t pos, Names&&... names) const
-    {
-        auto cursor = _seek_in_array(_cursor, pos, std::forward<Names>(names)...);
-        return _get_scalar<T>(cursor);
-    }
-
-    // Get the vector value of the specified array element.
-    // The specified element must be an array and contains elements of a type compatible with `T`.
-    template <typename T, typename... Names>
-    vector<T> get_vector(Names&&... names) const
-    {
-        auto cursor = _cseek(_cursor, std::forward<Names>(names)...);
-        return _get_vector<T>(cursor);
-    }
-
-    // Get the vector value at the specified index in the specified array element.
-    // The specified element must be an array and contains array elements of type compatible with `vector<T>`.
-    template <typename T, typename... Names>
-    vector<T> get_vector_in_array(size_t pos, Names&&... names)
-    {
-        auto cursor = _cseek_in_array(_cursor, pos, std::forward<Names>(names)...);
-        return _get_vector<T>(cursor);
-    }
-
-  private:
-    Datum _root;
-    Datum const* _cursor;
-    vector<Datum const*> _cursor_stack;
-    string _root_name;
-
-    Datum const* _cseek(Datum const* cursor) const
-    {
-        return cursor;
-    }
-
-    template <typename... Names>
-    Datum const* _cseek(Datum const* cursor, string const& name, Names&&... names) const
-    {
-        if ("" == name) {
-            throw Error("can not seek an element with empty name");
-        }
-
-        // Re-position the cursor at the root of the doc.
-        if ("/" == name) {
-            cursor = &_root;
-        } else {
-            if (cursor->type() != avro::AVRO_RECORD) {
-                throw Error(make_string(
-                    "can not seek element '",
-                    name,
-                    "' because curent element is not pointing at a AVRO_RECORD; actual type is '",
-                    avro::toString(cursor->type()),
-                    "'"));
-            }
-            auto const& rec = cursor->value<avro::GenericRecord>();
-            if (!rec.hasField(name)) {
-                throw Error(make_string(
-                    "current record does not have field named '",
-                    name,
-                    "'"));
-            }
-            cursor = &rec.field(name);
-        }
-        return _cseek(cursor, std::forward<Names>(names)...);
-    }
-
-    template <typename... Names>
-    Datum const* _cseek_in_array(Datum const* cursor, size_t pos, Names&&... names) const
-    {
-        cursor = _cseek(cursor, std::forward<Names>(names)...);
-        _assert_type(cursor, avro::AVRO_ARRAY);
-        auto const& data = cursor->value<avro::GenericArray>().value(); // vector<GenericDatum>
-        auto n = data.size();
-        if (pos >= n) {
-            throw Error(make_string(
-                "out of bounds: can not seek item <",
-                pos,
-                "> in array because array size is ",
-                n));
-        }
-        return &data[pos];
-    }
-
-    size_t _get_array_size(Datum const* cursor) const
-    {
-        _assert_type(cursor, avro::AVRO_ARRAY);
-        auto const& data = cursor->value<avro::GenericArray>().value();
-        return data.size();
-    }
-
-    size_t _get_record_size(Datum const* cursor) const
-    {
-        _assert_type(cursor, avro::AVRO_RECORD);
-        auto const& rec = cursor->value<avro::GenericRecord>();
-        return rec.fieldCount();
-    }
-
-    avro::Type _get_array_elem_type(Datum const* cursor) const
-    {
-        _assert_type(cursor, avro::AVRO_ARRAY);
-        auto n = _get_array_size(cursor);
-        if (n < 1) {
-            throw Error("can not determine element type of an empty array");
-        }
-        return _cseek_in_array(cursor, 0)->type();
-    }
-
-    void _assert_type(Datum const* cursor, avro::Type const& t) const
-    {
-        if (cursor->type() != t) {
-            throw Error(make_string(
-                "encountered element of type '", avro::toString(cursor->type()),
-                "' while type '", avro::toString(t), "' is expected"));
-        }
-    }
-
-    bool _is_typed_array(Datum const* cursor, avro::Type const& t) const
-    {
-        if (cursor->type() != avro::AVRO_ARRAY) {
-            return false;
-        }
-        return _get_array_elem_type(cursor) == t;
-    }
-
-    void _assert_array_elem_type(Datum const* cursor, avro::Type const& t) const
-    {
-        auto tt = _get_array_elem_type(cursor);
-        if (t != tt) {
-            throw Error(make_string(
-                "encountered array with elements of type '", avro::toString(tt),
-                "' while type '", avro::toString(t), "' is expected"));
-        }
-    }
-
-    template <typename... Names>
-    bool _has_member(Datum const* cursor, string const& name, Names&&... names) const
-    {
-        if constexpr (sizeof...(names) == 0) {
-            if (cursor->type() == avro::AVRO_RECORD) {
-                auto rec = cursor->value<avro::GenericRecord>();
-                return rec.hasField(name);
-            }
-            throw Error(make_string(
-                "'has_member' needs an element of type 'record', but current element has type '",
-                avro::toString(cursor->type()),
-                "'"));
-        } else {
-            return _has_member(_cseek(cursor, name), std::forward<Names>(names)...);
-        }
-    }
-
-    template <typename T>
-    T _get_scalar(Datum const* cursor) const
-    {
         if (type_equals<T, string>()) {
             _assert_type(cursor, avro::AVRO_STRING);
         } else if (type_equals<T, int>()) {
@@ -396,13 +238,16 @@ class AvroReader {
         } else {
             throw Error("unknown type");
         }
-
         return cursor->value<T>();
     }
 
-    template <typename T>
-    vector<T> _get_vector(Datum const* cursor) const
+    // Get the vector value of the specified element.
+    // The specified element must be an array and contains elements of a type compatible with `T`.
+    template <typename T, typename... Names>
+    vector<T> get_vector(Names&&... names) const
     {
+        auto cursor = _cseek(_cursor, std::forward<Names>(names)...);
+
         if (cursor->type() != avro::AVRO_ARRAY) {
             throw Error(make_string(
                 "can not get vector value because current element is not AVRO_ARRAY, ",
@@ -433,6 +278,109 @@ class AvroReader {
             value.push_back(v.value<T>());
         }
         return std::move(value);
+    }
+
+  private:
+    Datum _root;
+    Datum const* _cursor;
+    vector<Datum const*> _cursor_stack;
+    string _root_name;
+
+    Datum const* _cseek(Datum const* cursor) const
+    {
+        return cursor;
+    }
+
+    template <typename... Names>
+    Datum const* _cseek(Datum const* cursor, string const& name, Names&&... names) const
+    {
+        if ("" == name) {
+            throw Error("can not seek an element with empty name");
+        }
+
+        // Re-position the cursor at the root of the doc.
+        if ("/" == name) {
+            cursor = &_root;
+        } else {
+            _assert_type(cursor, avro::AVRO_RECORD);
+            auto const& rec = cursor->value<avro::GenericRecord>();
+            if (!rec.hasField(name)) {
+                throw Error(make_string(
+                    "current record does not have field named '",
+                    name,
+                    "'"));
+            }
+            cursor = &rec.field(name);
+        }
+        return _cseek(cursor, std::forward<Names>(names)...);
+    }
+
+    template <typename... Names>
+    Datum const* _cseek(Datum const* cursor, size_t pos, Names&&... names) const
+    {
+        _assert_type(cursor, avro::AVRO_ARRAY);
+        auto const& data = cursor->value<avro::GenericArray>().value(); // vector<GenericDatum>
+        auto n = data.size();
+        if (pos >= n) {
+            throw Error(make_string(
+                "out of bounds: can not seek item <",
+                pos,
+                "> in array because array size is ",
+                n));
+        }
+        cursor = &data[pos];
+        return _cseek(cursor, std::forward<Names>(names)...);
+    }
+
+    size_t _get_array_size(Datum const* cursor) const
+    {
+        _assert_type(cursor, avro::AVRO_ARRAY);
+        auto const& data = cursor->value<avro::GenericArray>().value();
+        return data.size();
+    }
+
+    size_t _get_record_size(Datum const* cursor) const
+    {
+        _assert_type(cursor, avro::AVRO_RECORD);
+        auto const& rec = cursor->value<avro::GenericRecord>();
+        return red.fieldCount();
+    }
+
+    avro::Type _get_array_elem_type(Datum const* cursor) const
+    {
+        _assert_type(cursor, avro::AVRO_ARRAY);
+        auto n = _get_array_size(cursor);
+        if (n < 1) {
+            throw Error("can not determine element type of an empty array");
+        }
+        return _cseek(cursor, 0)->type();
+    }
+
+    void _assert_type(Datum const* cursor, avro::Type const& t) const
+    {
+        if (cursor->type() != t) {
+            throw Error(make_string(
+                "encountered element of type '", avro::toString(cursor->type()),
+                "' while type '", avro::toString(t), "' is expected"));
+        }
+    }
+
+    bool _is_typed_array(Datum const* cursor, avro::Type const& t) const
+    {
+        if (cursor->type() != avro::AVRO_ARRAY) {
+            return false;
+        }
+        return _get_array_elem_type(cursor) == t;
+    }
+
+    void _assert_array_elem_type(Datum const* cursor, avro::Type const& t) const
+    {
+        auto tt = _get_array_elem_type(cursor);
+        if (t != tt) {
+            throw Error(make_string(
+                "encountered array with elements of type '", avro::toString(tt),
+                "' while type '", avro::toString(t), "' is expected"));
+        }
     }
 
     void _check_cursor() const
