@@ -3,9 +3,11 @@
 
 #include <chrono>
 
-namespace zpz {
+namespace zpz
+{
 
-class Timer {
+class Timer
+{
     using clock = std::chrono::high_resolution_clock;
 
   public:

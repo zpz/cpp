@@ -8,7 +8,8 @@
 
 #include <math.h>
 
-namespace zpz {
+namespace zpz
+{
 
 struct calendar {
     int year; /* Year number */
@@ -84,7 +85,7 @@ int dateset_jul(struct calendar* cal, double jdate)
  *
  * Because the Julian date is a huge number that may cause precision trouble,
  * always use the -fdefault-real-8 option while compiling this procedure.
- * This option makes double precision the default real kind, 
+ * This option makes double precision the default real kind,
  * Double precision is enforced in this function;
  * but using that compiler option will make caller programs
  * that declare 'real' variables consistent with this function.
@@ -94,7 +95,7 @@ int dateset_jul(struct calendar* cal, double jdate)
  *
  * If hour, minute, and second are present, add the fraction of the day.
  *
- * Remember that day lengths vary; over time, the length of a day is increasing.  
+ * Remember that day lengths vary; over time, the length of a day is increasing.
  * Counting days is not an absoulte measure of time in the strict sense.
  * But it's okay for the time concept of most measurement data.
  *
@@ -106,7 +107,7 @@ int dateset_jul(struct calendar* cal, double jdate)
  * A clever computer algorithm for converting calendar dates to Julian
  * days was developed using FORTRAN integer arithmetic (H. F. Fliegel'
  * and T. C. Van Flandern, "A Machine Algorithm for Processing'
- * Calendar Dates," Communications of the ACM 11 [1968]: 657). 
+ * Calendar Dates," Communications of the ACM 11 [1968]: 657).
  * In FORTRAN integer arithmetic, multiplication and division are
  * performed left to right in the order of occurrence, and the
  * absolute value of each result is truncated to the next lower
@@ -122,7 +123,7 @@ int dateset_jul(struct calendar* cal, double jdate)
  *   http://aa.usno.navy.mil/data/docs/JulianDate.html
  */
 int dateset_greg(struct calendar* cal, int year, int month, int day,
-    int hour, int minute, int second, long int nsecond)
+                 int hour, int minute, int second, long int nsecond)
 {
     double x;
 

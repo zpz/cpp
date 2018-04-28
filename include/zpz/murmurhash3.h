@@ -12,7 +12,8 @@
 #include <cstdint> // uint8_t, uint32_t, uint64_t
 #include <tuple>
 
-namespace zpz {
+namespace zpz
+{
 
 inline uint32_t rotl32(uint32_t x, int8_t r)
 {
@@ -42,7 +43,7 @@ inline uint32_t fmix32(uint32_t h)
 }
 
 void MurmurHash3_x86_32(const void* key, int len,
-    uint32_t seed, void* out)
+                        uint32_t seed, void* out)
 {
     const uint8_t* data = (const uint8_t*)key;
     const int nblocks = len / 4;
@@ -64,16 +65,16 @@ void MurmurHash3_x86_32(const void* key, int len,
     const uint8_t* tail = (const uint8_t*)(data + nblocks * 4);
     uint32_t k1 = 0;
     switch (len & 3) {
-    case 3:
-        k1 ^= tail[2] << 16;
-    case 2:
-        k1 ^= tail[1] << 8;
-    case 1:
-        k1 ^= tail[0];
-        k1 *= c1;
-        k1 = rotl32(k1, 15);
-        k1 *= c2;
-        h1 ^= k1;
+        case 3:
+            k1 ^= tail[2] << 16;
+        case 2:
+            k1 ^= tail[1] << 8;
+        case 1:
+            k1 ^= tail[0];
+            k1 *= c1;
+            k1 = rotl32(k1, 15);
+            k1 *= c2;
+            h1 ^= k1;
     };
 
     h1 ^= len;

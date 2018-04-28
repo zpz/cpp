@@ -1,10 +1,14 @@
 #ifndef _zpz_utilities_string_h_
 #define _zpz_utilities_string_h_
 
+#include "io.h"
+
 #include <random>
 #include <string>
+#include <vector>
 
-namespace zpz {
+namespace zpz
+{
 
 std::string random_string(std::size_t length)
 {
@@ -17,39 +21,16 @@ std::string random_string(std::size_t length)
 
     std::string s;
     s.reserve(length);
-    while (length--)
+    while (length--) {
         s += chrs[pick(rg)];
+    }
 
     return s;
 }
 
-template <typename T>
-std::ostream& operator<<(std::ostream& os, vector<T> const& x)
-{
-    auto it = x.cbegin();
-    if (it != x.cend()) {
-        os << "[" << *it;
-    } else {
-        return os;
-    }
-    it++;
-    while (it != x.cend()) {
-        os << ", " << *it;
-        it++;
-    }
-    os << "]";
-    return os;
-}
-
-template <typename S, typename T>
-std::ostream& operator<<(std::ostream& os, std::pair<S, T> const& x)
-{
-    os << "<" << x.first << ", " << x.second << ">";
-    return os;
-}
 
 template <typename T>
-string make_string(T x)
+std::string make_string(T x)
 {
     std::stringstream ss;
     ss << x;
@@ -57,25 +38,25 @@ string make_string(T x)
 }
 
 template <>
-string make_string(string x)
+std::string make_string(std::string x)
 {
     return x;
 }
 
 template <>
-string make_string(string_view x)
+std::string make_string(std::string_view x)
 {
-    return string(x);
+    return std::string(x);
 }
 
 template <>
-string make_string(char const* x)
+std::string make_string(char const* x)
 {
-    return string(x);
+    return std::string(x);
 }
 
 template <typename T, typename... Args>
-string make_string(T const& x, Args... xs)
+std::string make_string(T const& x, Args... xs)
 {
     return make_string(x) + make_string(xs...);
 }

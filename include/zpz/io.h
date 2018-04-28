@@ -9,7 +9,8 @@
 #include <unordered_map>
 #include <vector>
 
-namespace zpz {
+namespace zpz
+{
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, std::vector<T> const& x)

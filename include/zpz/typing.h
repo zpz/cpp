@@ -1,7 +1,15 @@
 #ifndef _zpz_utilities_typing_h_
 #define _zpz_utilities_typing_h_
 
-namespace zpz {
+#include "exception.h"
+
+#include <string>
+#include <typeindex>
+#include <typeinfo>
+
+
+namespace zpz
+{
 template <typename T, typename S>
 constexpr bool type_equals()
 {
@@ -11,18 +19,24 @@ constexpr bool type_equals()
 template <typename T>
 char const* type_name()
 {
-    if (type_equals<T, int>())
+    if (type_equals<T, int>()) {
         return "int";
-    if (type_equals<T, long>())
+    }
+    if (type_equals<T, long>()) {
         return "long";
-    if (type_equals<T, double>())
+    }
+    if (type_equals<T, double>()) {
         return "double";
-    if (type_equals<T, float>())
+    }
+    if (type_equals<T, float>()) {
         return "float";
-    if (type_equals<T, string>())
+    }
+    if (type_equals<T, std::string>()) {
         return "string";
-    if (type_equals<T, bool>())
+    }
+    if (type_equals<T, bool>()) {
         return "bool";
+    }
     throw NOTIMPLEMENTED;
 }
 

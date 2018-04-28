@@ -1,7 +1,12 @@
+#include "zpz/date.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "date.h"
+
+
+using namespace zpz;
+
 
 int
 main(void)
@@ -25,13 +30,13 @@ main(void)
         dateset_greg(&cal, y, m, d, h, mi, s, ns);
 
         printf("%5d %4d %4d %4d %4d %4d %12ld  %f\n",
-                y, m, d, h, mi, s, ns, ns * 1.e-9);
+               y, m, d, h, mi, s, ns, ns * 1.e-9);
 
         dateset_jul(&cal, cal.jdate);
         printf("%5d %4d %4d %4d %4d %4d %12ld  %f",
-                cal.year, cal.mon, cal.mday,
-                cal.hour, cal.min, cal.sec, cal.nsec,
-                cal.nsec * 1.e-9);
+               cal.year, cal.mon, cal.mday,
+               cal.hour, cal.min, cal.sec, cal.nsec,
+               cal.nsec * 1.e-9);
 
         printf("............... ");
         if (cal.year == y && cal.mon == m && cal.mday == d && cal.hour == h

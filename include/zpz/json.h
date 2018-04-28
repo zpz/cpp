@@ -7,9 +7,11 @@
 
 #include <rapidjson/document.h>
 
-namespace zpz {
+namespace zpz
+{
 
-class JsonReader {
+class JsonReader
+{
     // Design of this class is similar to that of `AvroReader`.
     //
     // This class is not optimized for speed.
@@ -225,10 +227,10 @@ class JsonReader {
         auto n = cursor->Size();
         if (pos >= n) {
             throw Error(make_string(
-                "can not seek item <",
-                pos,
-                "> in array because array size is ",
-                n));
+                            "can not seek item <",
+                            pos,
+                            "> in array because array size is ",
+                            n));
         }
         cursor = &(cursor->GetArray()[pos]);
         return _cseek(cursor, std::forward<Names>(names)...);
@@ -246,26 +248,27 @@ class JsonReader {
         // if (type == rapidjson::kNumberType) return "number";
         // throw UNREACHABLE;
 
-        if (cursor->IsString())
+        if (cursor->IsString()) {
             return "string";
-        else if (cursor->IsInt())
+        } else if (cursor->IsInt()) {
             return "int";
-        else if (cursor->IsUint())
+        } else if (cursor->IsUint()) {
             return "uint";
-        else if (cursor->IsInt64())
+        } else if (cursor->IsInt64()) {
             return "long";
-        else if (cursor->IsDouble())
+        } else if (cursor->IsDouble()) {
             return "double";
-        else if (cursor->IsFloat())
+        } else if (cursor->IsFloat()) {
             return "float";
-        else if (cursor->IsBool())
+        } else if (cursor->IsBool()) {
             return "bool";
-        else if (cursor->IsNull())
+        } else if (cursor->IsNull()) {
             return "null";
-        else if (cursor->IsArray())
+        } else if (cursor->IsArray()) {
             return "array";
-        else if (cursor->IsObject())
+        } else if (cursor->IsObject()) {
             return "object";
+        }
         return "unknown";
     }
 
@@ -273,18 +276,19 @@ class JsonReader {
     {
         if (_type_name(cursor) != type) {
             throw Error(make_string(
-                "encountered element of type '",
-                _type_name(cursor),
-                "' while type '",
-                type,
-                "' is expected"));
+                            "encountered element of type '",
+                            _type_name(cursor),
+                            "' while type '",
+                            type,
+                            "' is expected"));
         }
     }
 
     bool _is_typed_array(Cursor cursor, string_view type) const
     {
-        if (!cursor->IsArray())
+        if (!cursor->IsArray()) {
             return false;
+        }
         if (cursor->Size() < 1) {
             throw Error("can not determine element type of an empty array");
         }
@@ -295,9 +299,9 @@ class JsonReader {
     {
         if (!_is_typed_array(cursor, type)) {
             throw Error(make_string(
-                "encountered array with elements of type '",
-                _type_name(_cseek(cursor, 0)),
-                "' while type '", type, "' is expected"));
+                            "encountered array with elements of type '",
+                            _type_name(_cseek(cursor, 0)),
+                            "' while type '", type, "' is expected"));
         }
     }
 
